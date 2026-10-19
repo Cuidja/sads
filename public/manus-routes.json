@@ -1,0 +1,6 @@
+{
+  "routes": [
+    { "path": "/", "title": "SADS — Cuidado e Desenvolvimento" },
+    { "path": "/privacidade", "title": "Privacidade — SADS" }
+  ]
+}
