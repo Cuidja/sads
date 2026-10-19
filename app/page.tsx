@@ -3,7 +3,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { ArrowDown, ArrowUpRight, Check, CircleHelp, Instagram, Menu, X } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUpRight,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CircleHelp,
+  Compass,
+  Eye,
+  Instagram,
+  Layers,
+  Maximize2,
+  Menu,
+  ShieldCheck,
+  Sparkles,
+  X,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const ASSET = {
@@ -31,30 +47,246 @@ const ASSET = {
   videoTwo: '/assets/WhatsApp Video 2026-10-19 at 19.05.10.mp4',
 } as const;
 
-const services = [
-  { number: '01', title: 'CadÚnico', copy: 'Cadastre ou atualize os dados da sua família para abrir caminhos de acesso a programas sociais.', image: ASSET.family },
-  { number: '02', title: 'Bolsa Família', copy: 'Encontre orientação para entender o programa e os próximos passos da sua família.', image: ASSET.public },
-  { number: '03', title: 'CRAS', copy: 'Um ponto de acolhimento, escuta e orientação para você e sua comunidade.', image: ASSET.room },
-  { number: '04', title: 'BPC', copy: 'Receba informação sobre o Benefício de Prestação Continuada e como buscar orientação.', image: ASSET.elder },
-  { number: '05', title: 'Benefícios eventuais', copy: 'Conheça os caminhos de apoio para situações que pedem uma resposta da rede.', image: ASSET.seniors },
+interface GalleryItem {
+  id: string;
+  image: string;
+  title: string;
+  category: 'todos' | 'oficios' | 'nuca' | 'convivencia' | 'territorio';
+  categoryLabel: string;
+  note: string;
+  details: string;
+}
+
+const GALLERY_ITEMS: GalleryItem[] = [
+  {
+    id: '1',
+    image: ASSET.team,
+    title: 'Equipe Multidisciplinar',
+    category: 'convivencia',
+    categoryLabel: 'Convivência',
+    note: 'acolhimento profissional e humanizado',
+    details: 'Equipe de assistentes sociais, psicólogos e técnicos unidos no atendimento às famílias de Saúde/BA.',
+  },
+  {
+    id: '2',
+    image: ASSET.hero,
+    title: 'Juventude Comunitária',
+    category: 'nuca',
+    categoryLabel: 'Juventude / NUCA',
+    note: 'encontro e fortalecimento da cidadania',
+    details: 'Espaço de escuta ativa e acolhimento juvenil para novos caminhos e oportunidades.',
+  },
+  {
+    id: '3',
+    image: ASSET.sewing,
+    title: 'Oficina de Costura e Confecção',
+    category: 'oficios',
+    categoryLabel: 'Ofícios & Renda',
+    note: 'saberes manuais que viram autonomia',
+    details: 'Capacitação prática em corte, costura e produção artesanal gerando oportunidades de emancipação.',
+  },
+  {
+    id: '4',
+    image: ASSET.nuca,
+    title: 'Voz Ativa no NUCA',
+    category: 'nuca',
+    categoryLabel: 'Juventude / NUCA',
+    note: 'protagonismo jovem em construção',
+    details: 'Adolescentes articulando ideias, defendendo direitos e transformando a realidade local.',
+  },
+  {
+    id: '5',
+    image: ASSET.crochet,
+    title: 'Trançados & Crochê Tradicional',
+    category: 'oficios',
+    categoryLabel: 'Ofícios & Renda',
+    note: 'valorização da arte e cultura regional',
+    details: 'Produção têxtil comunitária fomentando a economia solidária e o bem-estar coletivo.',
+  },
+  {
+    id: '6',
+    image: ASSET.family,
+    title: 'Acolhimento Familiar & CadÚnico',
+    category: 'convivencia',
+    categoryLabel: 'Convivência',
+    note: 'acesso a direitos para famílias',
+    details: 'Inclusão e atualização cadastral permanente para garantir o acesso a programas de transferência de renda.',
+  },
+  {
+    id: '7',
+    image: ASSET.elder,
+    title: 'Proteção e Convivência da Pessoa Idosa',
+    category: 'convivencia',
+    categoryLabel: 'Convivência',
+    note: 'respeito, dignidade e apoio ao BPC',
+    details: 'Orientação especializada para o Benefício de Prestação Continuada e garantia de dignidade aos idosos.',
+  },
+  {
+    id: '8',
+    image: ASSET.seniors,
+    title: 'Roda de Memória e Vivências',
+    category: 'convivencia',
+    categoryLabel: 'Convivência',
+    note: 'vínculos que fortalecem gerações',
+    details: 'Momentos de partilha, lazer e integração comunitária que previnem o isolamento social.',
+  },
+  {
+    id: '9',
+    image: ASSET.eca,
+    title: 'Mobilização pelos Direitos da Criança',
+    category: 'nuca',
+    categoryLabel: 'Juventude / NUCA',
+    note: 'defesa integral e conscientização',
+    details: 'Campanhas educativas sobre o Estatuto da Criança e do Adolescente em escolas e espaços públicos.',
+  },
+  {
+    id: '10',
+    image: ASSET.youth,
+    title: 'Diálogos de Juventude',
+    category: 'nuca',
+    categoryLabel: 'Juventude / NUCA',
+    note: 'a juventude como força do presente',
+    details: 'Rodas de debate, planejamento de projetos sociais e liderança participativa jovem.',
+  },
+  {
+    id: '11',
+    image: ASSET.room,
+    title: 'Espaço de Atendimento CRAS',
+    category: 'territorio',
+    categoryLabel: 'Território',
+    note: 'a porta de entrada da assistência',
+    details: 'Salas preparadas para atendimento privativo, acolhimento sigiloso e orientação técnica cuidadosa.',
+  },
+  {
+    id: '12',
+    image: ASSET.street,
+    title: 'Presença no Território',
+    category: 'territorio',
+    categoryLabel: 'Território',
+    note: 'assistência onde as pessoas vivem',
+    details: 'Busca ativa e visitas domiciliares alcançando comunidades urbanas e rurais de Saúde/BA.',
+  },
+  {
+    id: '13',
+    image: ASSET.activity,
+    title: 'Dinâmicas e Convivência Coletiva',
+    category: 'convivencia',
+    categoryLabel: 'Convivência',
+    note: 'movimento, afeto e integração',
+    details: 'Oficinas dinâmicas que incentivam a expressão corporal, a cooperação e a vida comunitária ativa.',
+  },
+  {
+    id: '14',
+    image: ASSET.workshop,
+    title: 'Oficina Prática de Produção',
+    category: 'oficios',
+    categoryLabel: 'Ofícios & Renda',
+    note: 'aprender fazendo, construir juntos',
+    details: 'Espaço colaborativo de aprendizado e desenvolvimento de produtos utilitários sustentáveis.',
+  },
+  {
+    id: '15',
+    image: ASSET.walk,
+    title: 'Caminhada Cidadã',
+    category: 'territorio',
+    categoryLabel: 'Território',
+    note: 'a rede em marcha pelas ruas',
+    details: 'Mobilização popular e comunitária celebrando conquistas sociais e reforçando os canais de apoio.',
+  },
+  {
+    id: '16',
+    image: ASSET.crafts,
+    title: 'Exposição de Trabalhos Manuais',
+    category: 'oficios',
+    categoryLabel: 'Ofícios & Renda',
+    note: 'criatividade que gera autoestima',
+    details: 'Feiras e mostras públicas dos produtos desenvolvidos pelos participantes das oficinas da SADS.',
+  },
+  {
+    id: '17',
+    image: ASSET.group,
+    title: 'Rede de Apoio Comunitária',
+    category: 'convivencia',
+    categoryLabel: 'Convivência',
+    note: 'ninguém caminha sozinho',
+    details: 'Fortalecimento de redes informais e comunitárias que amparam indivíduos e famílias em vulnerabilidade.',
+  },
+  {
+    id: '18',
+    image: ASSET.portrait,
+    title: 'Escuta Humanizada e Singular',
+    category: 'territorio',
+    categoryLabel: 'Território',
+    note: 'cada história merece respeito',
+    details: 'Olhar dedicado a cada cidadão, garantindo que o atendimento considere o contexto de vida individual.',
+  },
+  {
+    id: '19',
+    image: ASSET.public,
+    title: 'Orientação de Direitos Sociais',
+    category: 'territorio',
+    categoryLabel: 'Território',
+    note: 'informação clara e acessível',
+    details: 'Esclarecimento transparente sobre critérios de benefícios, documentos necessários e prazos legais.',
+  },
 ];
 
-const archiveItems = [
-  { image: ASSET.family, label: 'Acolhimento', note: 'cuidado que chega junto' },
-  { image: ASSET.activity, label: 'Convivência', note: 'vínculos que permanecem' },
-  { image: ASSET.street, label: 'Território', note: 'presença onde a vida acontece' },
-  { image: ASSET.crochet, label: 'Autonomia', note: 'saberes que viram possibilidade' },
-  { image: ASSET.walk, label: 'Participação', note: 'a rede em movimento' },
-  { image: ASSET.crafts, label: 'Ofício', note: 'fazer também é cuidar' },
-  { image: ASSET.group, label: 'Rede', note: 'ninguém constrói sozinho' },
-  { image: ASSET.portrait, label: 'Escuta', note: 'cada história importa' },
+const services = [
+  {
+    number: '01',
+    title: 'CadÚnico',
+    copy: 'Cadastre ou atualize os dados da sua família para abrir caminhos de acesso aos programas sociais municipais, estaduais e federais.',
+    image: ASSET.family,
+    tag: 'Base Cidadã',
+  },
+  {
+    number: '02',
+    title: 'Bolsa Família',
+    copy: 'Encontre orientação clara para entender as condicionalidades, atualização do benefício e os próximos passos para a sua família.',
+    image: ASSET.public,
+    tag: 'Renda & Dignidade',
+  },
+  {
+    number: '03',
+    title: 'CRAS',
+    copy: 'Centro de Referência de Assistência Social: um ponto de acolhimento, escuta profissionalizada e fortalecimento de vínculos.',
+    image: ASSET.room,
+    tag: 'Porta de Entrada',
+  },
+  {
+    number: '04',
+    title: 'BPC / LOAS',
+    copy: 'Receba informação completa sobre o Benefício de Prestação Continuada para idosos e pessoas com deficiência e como solicitar.',
+    image: ASSET.elder,
+    tag: 'Proteção Contínua',
+  },
+  {
+    number: '05',
+    title: 'Benefícios Eventuais',
+    copy: 'Conheça os auxílios e caminhos de apoio para situações de vulnerabilidade temporária, calamidade ou emergência familiar.',
+    image: ASSET.seniors,
+    tag: 'Apoio Emergencial',
+  },
 ];
 
 function SectionTag({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
-  return <span className={`section-tag${light ? ' section-tag-light' : ''}`}>{children}</span>;
+  return (
+    <span className={`section-tag${light ? ' section-tag-light' : ''}`}>
+      <span className="section-tag-dot" />
+      {children}
+    </span>
+  );
 }
 
-function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function Reveal({
+  children,
+  className = '',
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -103,13 +335,17 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(true);
   const [activeVideo, setActiveVideo] = useState<'one' | 'two'>('one');
+  const [selectedCategory, setSelectedCategory] = useState<string>('todos');
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll();
   const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const progressScale = useSpring(scrollYProgress, { stiffness: 110, damping: 30, mass: 0.2 });
+
   const heroY = useTransform(heroProgress, [0, 1], ['0%', '16%']);
-  const heroOpacity = useTransform(heroProgress, [0, .65, 1], [1, 1, 0]);
+  const heroOpacity = useTransform(heroProgress, [0, 0.65, 1], [1, 1, 0]);
   const stageY = useTransform(heroProgress, [0, 1], ['0%', '-15%']);
   const stageRotate = useTransform(heroProgress, [0, 1], [0, 7]);
   const heroCardRotateMain = useTransform(heroProgress, [0, 1], [2, -2]);
@@ -117,183 +353,635 @@ export default function HomePage() {
 
   const closeMenu = () => setMenuOpen(false);
 
+  const filteredGallery =
+    selectedCategory === 'todos'
+      ? GALLERY_ITEMS
+      : GALLERY_ITEMS.filter((item) => item.category === selectedCategory);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+  };
+
+  const closeLightbox = () => {
+    setLightboxIndex(null);
+  };
+
+  const nextLightbox = () => {
+    if (lightboxIndex !== null) {
+      setLightboxIndex((prev) => ((prev ?? 0) + 1) % filteredGallery.length);
+    }
+  };
+
+  const prevLightbox = () => {
+    if (lightboxIndex !== null) {
+      setLightboxIndex((prev) => ((prev ?? 0) - 1 + filteredGallery.length) % filteredGallery.length);
+    }
+  };
+
   useEffect(() => {
-    if (!menuOpen) return;
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (lightboxIndex !== null) {
+        if (event.key === 'Escape') {
+          setLightboxIndex(null);
+        } else if (event.key === 'ArrowRight') {
+          setLightboxIndex((prev) => (prev !== null ? (prev + 1) % filteredGallery.length : null));
+        } else if (event.key === 'ArrowLeft') {
+          setLightboxIndex((prev) =>
+            prev !== null ? (prev - 1 + filteredGallery.length) % filteredGallery.length : null
+          );
+        }
+      } else if (menuOpen && event.key === 'Escape') {
         setMenuOpen(false);
         menuButtonRef.current?.focus();
       }
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [menuOpen]);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, menuOpen, filteredGallery.length]);
 
   return (
-    <main id="conteudo" tabIndex={-1}>
-      <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
-      <motion.div className="progress-line" style={reduce ? { scaleX: 0 } : { scaleX: progressScale }} aria-hidden="true" />
+    <main id="conteudo" tabIndex={-1} className="main-wrapper">
+      <a className="skip-link" href="#conteudo">
+        Pular para o conteúdo
+      </a>
+      <motion.div
+        className="progress-line"
+        style={reduce ? { scaleX: 0 } : { scaleX: progressScale }}
+        aria-hidden="true"
+      />
       <CursorAura />
 
-      <header className="site-nav" aria-label="Navegação principal">
+      {/* AMBIENT LIGHT GLOWS */}
+      <div className="ambient-glow ambient-glow-top-left" aria-hidden="true" />
+      <div className="ambient-glow ambient-glow-center" aria-hidden="true" />
+      <div className="ambient-glow ambient-glow-bottom-right" aria-hidden="true" />
+
+      {/* FLOATING GLASS NAVIGATION */}
+      <header className="site-nav glass-nav" aria-label="Navegação principal">
         <a href="#inicio" className="brand-lockup" aria-label="SADS — início" onClick={closeMenu}>
-          <Image className="brand-logo" src={ASSET.logo} alt="Saúde — Secretaria de Ação e Desenvolvimento Social" width={1055} height={266} priority />
+          <Image
+            className="brand-logo"
+            src={ASSET.logo}
+            alt="Saúde — Secretaria de Ação e Desenvolvimento Social"
+            width={1055}
+            height={266}
+            priority
+          />
         </a>
-        <nav id="mobile-navigation" className={`nav-links${menuOpen ? ' is-open' : ''}`} aria-label="Seções da página">
-          <a href="#inicio" onClick={closeMenu}>Início</a>
-          <a href="#acoes" onClick={closeMenu}>Ações</a>
-          <a href="#servicos" onClick={closeMenu}>Serviços</a>
-          <a href="#nuca" onClick={closeMenu}>NUCA</a>
-          <a href="#apoio" onClick={closeMenu}>Apoio</a>
+        <nav
+          id="mobile-navigation"
+          className={`nav-links${menuOpen ? ' is-open' : ''}`}
+          aria-label="Seções da página"
+        >
+          <a href="#inicio" onClick={closeMenu}>
+            Início
+          </a>
+          <a href="#acervo" onClick={closeMenu}>
+            Acervo Vivo
+          </a>
+          <a href="#servicos" onClick={closeMenu}>
+            Serviços
+          </a>
+          <a href="#nuca" onClick={closeMenu}>
+            NUCA
+          </a>
+          <a href="#videos" onClick={closeMenu}>
+            Registros
+          </a>
+          <a href="#apoio" onClick={closeMenu}>
+            Apoio
+          </a>
         </nav>
-        <a className="nav-cta" href="#contato" onClick={closeMenu}>Canais oficiais <ArrowUpRight size={15} /></a>
-        <button ref={menuButtonRef} className="menu-toggle" type="button" aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen((current) => !current)}>
+        <a className="nav-cta glass-cta" href="#contato" onClick={closeMenu}>
+          Canais oficiais <ArrowUpRight size={15} />
+        </a>
+        <button
+          ref={menuButtonRef}
+          className="menu-toggle glass-toggle"
+          type="button"
+          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => setMenuOpen((current) => !current)}
+        >
           {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </header>
 
+      {/* HERO SECTION WITH 3D GLASS STACK & AMBIENCE */}
       <section id="inicio" ref={heroRef} className="hero" aria-labelledby="hero-title">
         <motion.div className="hero-media" style={reduce ? undefined : { y: heroY }}>
-          <Image src={ASSET.hero} alt="Jovens reunidos em frente a uma porta amarela, em uma ação comunitária" fill priority sizes="100vw" />
+          <Image
+            src={ASSET.hero}
+            alt="Ação comunitária da juventude e equipe SADS"
+            fill
+            priority
+            sizes="100vw"
+          />
         </motion.div>
+        <div className="hero-grid-overlay" aria-hidden="true" />
+
         <div className="hero-inner">
           <motion.div className="hero-copy" style={reduce ? undefined : { opacity: heroOpacity }}>
-            <span className="kicker">SADS · Saúde / BA</span>
-            <h1 id="hero-title">Cuidado que <em>transforma</em>. Desenvolvimento que inclui.</h1>
-            <p className="hero-intro">Uma rede pública que acolhe pessoas, aproxima direitos e constrói, junto com a comunidade, o próximo passo.</p>
+            <div className="glass-pill-badge">
+              <span className="live-status-dot" />
+              <span>SADS · SAÚDE / BA · REDE ATIVA</span>
+            </div>
+            <h1 id="hero-title">
+              Cuidado que <em>transforma</em>.<br />Desenvolvimento que inclui.
+            </h1>
+            <p className="hero-intro">
+              Uma rede viva que acolhe pessoas, assegura direitos fundamentais e constrói, junto com a comunidade de
+              Saúde/BA, caminhos reais de autonomia e cidadania.
+            </p>
             <div className="hero-actions">
-              <a className="button button-primary" href="#servicos">Encontrar um serviço <ArrowDown size={16} /></a>
-              <a className="button button-ghost" href="#historia">Conhecer a SADS <ArrowUpRight size={16} /></a>
+              <a className="button button-primary glass-glow-button" href="#acervo">
+                Explorar Acervo de Ações <ArrowDown size={16} />
+              </a>
+              <a className="button button-ghost glass-ghost-button" href="#servicos">
+                Serviços & Direitos <ArrowUpRight size={16} />
+              </a>
+            </div>
+
+            {/* QUICK STATS HUD */}
+            <div className="hero-hud-stats">
+              <div className="hud-stat-item">
+                <span className="hud-num">19+</span>
+                <span className="hud-label">Ações Documentadas</span>
+              </div>
+              <div className="hud-divider" />
+              <div className="hud-stat-item">
+                <span className="hud-num">5</span>
+                <span className="hud-label">Serviços Essenciais</span>
+              </div>
+              <div className="hud-divider" />
+              <div className="hud-stat-item">
+                <span className="hud-num">NUCA</span>
+                <span className="hud-label">Juventude em Ação</span>
+              </div>
             </div>
           </motion.div>
         </div>
-        <motion.div className="hero-stage" style={reduce ? undefined : { y: stageY, rotate: stageRotate }} aria-hidden="true">
+
+        {/* 3D FLOATING GLASS STAGE */}
+        <motion.div
+          className="hero-stage"
+          style={reduce ? undefined : { y: stageY, rotate: stageRotate }}
+          aria-hidden="true"
+        >
           <div className="hero-stage-grid" />
-          <div className="hero-glass-panel"><span>ARQUIVO SADS</span><strong>presença<br />no território</strong><small>01 — 04</small></div>
-          <motion.div className="hero-photo-card hero-photo-main" style={reduce ? undefined : { rotate: heroCardRotateMain }}>
+          <div className="hero-glass-panel glass-hud-box">
+            <div className="glass-hud-top">
+              <span className="glass-tag">ARQUIVO TERRITORIAL</span>
+              <span className="pulse-dot" />
+            </div>
+            <strong>
+              presença viva<br />no território
+            </strong>
+            <small>Saúde · Bahia · 2026</small>
+            <div className="glass-hud-meter">
+              <span style={{ width: '88%' }} />
+            </div>
+          </div>
+
+          <motion.div
+            className="hero-photo-card hero-photo-main glass-frame-card"
+            style={reduce ? undefined : { rotate: heroCardRotateMain }}
+          >
             <Image src={ASSET.team} alt="" fill sizes="(max-width: 700px) 42vw, 23vw" />
-            <span>rede / 2026</span>
+            <span className="glass-badge-photo">Equipe & Território</span>
           </motion.div>
-          <motion.div className="hero-photo-card hero-photo-small" style={reduce ? undefined : { rotate: heroCardRotateSmall }}>
+
+          <motion.div
+            className="hero-photo-card hero-photo-small glass-frame-card"
+            style={reduce ? undefined : { rotate: heroCardRotateSmall }}
+          >
             <Image src={ASSET.crafts} alt="" fill sizes="(max-width: 700px) 30vw, 15vw" />
-            <span>feito à mão</span>
+            <span className="glass-badge-photo">Oficinas / Criação</span>
           </motion.div>
+
           <div className="hero-orbit hero-orbit-one" />
           <div className="hero-orbit hero-orbit-two" />
         </motion.div>
-        <div className="hero-note"><strong>Presença no território</strong>Escuta, orientação e participação para que cada pessoa encontre um caminho possível.</div>
-        <div className="hero-index" aria-hidden="true"><span /> 01 / 04</div>
+
+        <div className="hero-note glass-card">
+          <div className="glass-note-icon">
+            <Compass size={16} />
+          </div>
+          <div>
+            <strong>Presença no Território</strong>
+            <p>Escuta atenta e mobilização contínua para que cada história encontre uma porta de entrada digna.</p>
+          </div>
+        </div>
+
+        <div className="hero-index" aria-hidden="true">
+          <span /> 01 / 05 · ACOLHIDA
+        </div>
       </section>
 
+      {/* INFINITE GLASS MARQUEE */}
+      <div className="glass-marquee-wrap" aria-hidden="true">
+        <div className="glass-marquee-track">
+          <span>ACOLHIMENTO INTEGRAL</span>
+          <span className="marquee-dot">◆</span>
+          <span>PROTAGONISMO JUVENIL</span>
+          <span className="marquee-dot">◆</span>
+          <span>FORTALECIMENTO DE VÍNCULOS</span>
+          <span className="marquee-dot">◆</span>
+          <span>AUTONOMIA & OFÍCIOS</span>
+          <span className="marquee-dot">◆</span>
+          <span>ACESSO A DIREITOS</span>
+          <span className="marquee-dot">◆</span>
+          <span>SAÚDE · BAHIA</span>
+          <span className="marquee-dot">◆</span>
+          <span>ACOLHIMENTO INTEGRAL</span>
+          <span className="marquee-dot">◆</span>
+          <span>PROTAGONISMO JUVENIL</span>
+          <span className="marquee-dot">◆</span>
+          <span>FORTALECIMENTO DE VÍNCULOS</span>
+          <span className="marquee-dot">◆</span>
+          <span>AUTONOMIA & OFÍCIOS</span>
+          <span className="marquee-dot">◆</span>
+        </div>
+      </div>
+
+      {/* STORY & HISTORIA SECTION WITH GLASS STATEMENT */}
       <section id="historia" className="section section-paper" aria-labelledby="historia-title">
         <div className="section-grid">
           <Reveal className="section-header">
-            <SectionTag>01 / Acolhida</SectionTag>
-            <h2 id="historia-title">A política pública começa quando alguém <em>escuta.</em></h2>
-            <p>Na SADS, o cuidado é feito de presença: uma conversa, uma orientação, uma oficina, uma rede que se move para não deixar ninguém para trás.</p>
-            <p>Esta é uma página de caminhos. Você pode começar pela sua necessidade e encontrar a porta de entrada mais próxima da sua realidade.</p>
+            <SectionTag>01 / Acolhida e Presença</SectionTag>
+            <h2 id="historia-title">
+              A política pública começa quando alguém <em>escuta.</em>
+            </h2>
+            <p>
+              Na SADS de Saúde/BA, a assistência social não é burocracia: é presença humana. Uma conversa individualizada,
+              uma orientação clara de direitos, uma oficina que devolve a confiança e uma rede atuante para que ninguém
+              fique desamparado.
+            </p>
+            <p>
+              Organizamos as portas de entrada de forma transparente para que você identifique rapidamente o serviço que
+              atende à sua necessidade.
+            </p>
+
+            <div className="statement-glass-box glass-card">
+              <Sparkles size={20} className="sparkle-icon" />
+              <p>
+                <strong>Compromisso SADS:</strong> Garantir que cada cidadão e família de Saúde/BA tenha acesso
+                simplificado aos seus direitos com dignidade e respeito.
+              </p>
+            </div>
           </Reveal>
-          <Reveal className="story-visual" delay={.12}>
-            <div className="image-frame"><Image src={ASSET.team} alt="Equipe reunida em frente a um espaço de atendimento" fill sizes="(max-width: 980px) 92vw, 54vw" /></div>
-            <div className="image-frame"><Image src={ASSET.sewing} alt="Oficina com máquina de costura e peças coloridas" fill sizes="(max-width: 980px) 60vw, 30vw" /></div>
-            <div className="story-stamp">Cuidado<br />em movimento</div>
+
+          <Reveal className="story-visual" delay={0.12}>
+            <div className="image-frame glass-image-frame">
+              <Image
+                src={ASSET.team}
+                alt="Equipe SADS reunida em frente à sede"
+                fill
+                sizes="(max-width: 980px) 92vw, 54vw"
+              />
+            </div>
+            <div className="image-frame glass-image-frame">
+              <Image
+                src={ASSET.sewing}
+                alt="Oficina de costura com máquina e peças coloridas"
+                fill
+                sizes="(max-width: 980px) 60vw, 30vw"
+              />
+            </div>
+            <div className="story-stamp glass-stamp">
+              Cuidado
+              <br />
+              em rede
+            </div>
           </Reveal>
         </div>
       </section>
 
-      <section id="acoes" className="section archive-section" aria-labelledby="acoes-title">
+      {/* EXPANDED 3D WORK STACK & ACERVO VIVO GALLERY (TODAS AS FOTOS) */}
+      <section id="acervo" className="section archive-section" aria-labelledby="acervo-title">
         <div className="archive-head">
           <Reveal className="section-header">
-            <SectionTag light>Arquivo / Ações</SectionTag>
-            <h2 id="acoes-title" className="display">O trabalho aparece nos <em>detalhes.</em></h2>
+            <SectionTag light>Acervo Vivo · 19 Registros</SectionTag>
+            <h2 id="acervo-title" className="display">
+              O trabalho real que acontece no <em>cotidiano.</em>
+            </h2>
           </Reveal>
-          <Reveal className="archive-intro" delay={.1}>
-            <span className="archive-index">SADS / 01—08</span>
-            <p>Uma coleção de gestos, encontros e oficinas. Não é banco de imagens: é a memória visual de uma rede que acontece no dia a dia.</p>
+          <Reveal className="archive-intro" delay={0.1}>
+            <span className="archive-index">MEMÓRIA VISUAL · SAÚDE/BA</span>
+            <p>
+              Não usamos banco de imagens genérico. Cada fotografia documenta pessoas, encontros, oficinas e ações
+              reais construídas junto com a comunidade.
+            </p>
           </Reveal>
         </div>
-        <div className="archive-grid">
-          {archiveItems.map((item, index) => (
-            <Reveal key={`${item.label}-${index}`} className={`archive-card archive-card-${index + 1}`} delay={index * .035}>
-              <Image src={item.image} alt={`${item.label}: ${item.note}`} fill sizes="(max-width: 700px) 86vw, 25vw" />
-              <div className="archive-glass"><strong>{item.label}</strong><span>{item.note}</span></div>
-              <span className="archive-number">0{index + 1}</span>
-            </Reveal>
+
+        {/* CATEGORY FILTER TABS IN GLASS */}
+        <div className="gallery-filter-bar glass-filter-bar" role="tablist" aria-label="Filtrar acervo por categoria">
+          {[
+            { key: 'todos', label: 'Todas as Ações (19)' },
+            { key: 'oficios', label: 'Oficinas & Renda (4)' },
+            { key: 'nuca', label: 'Juventude & NUCA (4)' },
+            { key: 'convivencia', label: 'Convivência & Vínculos (6)' },
+            { key: 'territorio', label: 'Território & Presença (5)' },
+          ].map((cat) => (
+            <button
+              key={cat.key}
+              type="button"
+              className={`filter-btn ${selectedCategory === cat.key ? 'is-active' : ''}`}
+              onClick={() => setSelectedCategory(cat.key)}
+              role="tab"
+              aria-selected={selectedCategory === cat.key}
+            >
+              {cat.label}
+            </button>
           ))}
         </div>
+
+        {/* 3D WORK STACK GRID */}
+        <motion.div layout className="work-stack-grid">
+          <AnimatePresence mode="popLayout">
+            {filteredGallery.map((item, index) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.45, delay: index * 0.03 }}
+                className="work-card-wrapper"
+              >
+                <div
+                  className="work-card glass-work-card"
+                  onClick={() => openLightbox(index)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Ver detalhes de ${item.title}`}
+                  onKeyDown={(e) => e.key === 'Enter' && openLightbox(index)}
+                >
+                  <div className="work-card-media">
+                    <Image src={item.image} alt={item.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                    <div className="card-glass-sheen" />
+                    <span className="work-card-zoom-pill">
+                      <Maximize2 size={13} /> Inspecionar
+                    </span>
+                  </div>
+
+                  <div className="work-card-content glass-card-dock">
+                    <div className="work-card-top-row">
+                      <span className="work-category-badge">{item.categoryLabel}</span>
+                      <span className="work-index-num">#{String(index + 1).padStart(2, '0')}</span>
+                    </div>
+                    <h3 className="work-card-title">{item.title}</h3>
+                    <p className="work-card-note">{item.note}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </section>
 
+      {/* LIGHTBOX MODAL DE VIDRO DE ALTA IMERSÃO */}
+      <AnimatePresence>
+        {lightboxIndex !== null && filteredGallery[lightboxIndex] && (
+          <motion.div
+            className="lightbox-overlay glass-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeLightbox}
+            role="dialog"
+            aria-modal="true"
+          >
+            <motion.div
+              className="lightbox-content glass-modal-box"
+              initial={{ scale: 0.92, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.92, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="lightbox-close glass-circle-btn"
+                onClick={closeLightbox}
+                aria-label="Fechar modal"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="lightbox-media-wrap">
+                <Image
+                  src={filteredGallery[lightboxIndex].image}
+                  alt={filteredGallery[lightboxIndex].title}
+                  fill
+                  className="lightbox-image"
+                  sizes="(max-width: 1024px) 95vw, 75vw"
+                />
+              </div>
+
+              <div className="lightbox-footer glass-footer-bar">
+                <div className="lightbox-info">
+                  <span className="lightbox-tag">{filteredGallery[lightboxIndex].categoryLabel}</span>
+                  <h2>{filteredGallery[lightboxIndex].title}</h2>
+                  <p>{filteredGallery[lightboxIndex].details}</p>
+                </div>
+
+                <div className="lightbox-controls">
+                  <button
+                    type="button"
+                    className="lightbox-nav-btn glass-circle-btn"
+                    onClick={prevLightbox}
+                    aria-label="Foto anterior"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <span className="lightbox-counter">
+                    {lightboxIndex + 1} / {filteredGallery.length}
+                  </span>
+                  <button
+                    type="button"
+                    className="lightbox-nav-btn glass-circle-btn"
+                    onClick={nextLightbox}
+                    aria-label="Próxima foto"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* SERVICES SECTION WITH 3D GLASS CARDS */}
       <section id="servicos" className="section section-blue" aria-labelledby="servicos-title">
         <div className="service-wrap">
           <Reveal className="service-head">
             <div className="section-header">
-              <SectionTag>02 / Acesso</SectionTag>
-              <h2 id="servicos-title" className="display">Cada necessidade tem um <em>caminho.</em></h2>
+              <SectionTag>02 / Acesso & Direitos</SectionTag>
+              <h2 id="servicos-title" className="display">
+                Cada necessidade tem um <em>caminho.</em>
+              </h2>
             </div>
-            <p className="lead">Comece pelo que você precisa. A equipe da SADS orienta o acesso e confirma os detalhes do atendimento para cada caso.</p>
+            <p className="lead">
+              Comece pelo que você precisa. A equipe da SADS orienta passo a passo o acesso e confirma a documentação
+              necessária para cada caso.
+            </p>
           </Reveal>
+
           <div className="service-grid">
             {services.map((service, index) => (
-              <Reveal key={service.title} delay={index * .06} className="service-card">
-                <div className="service-card-image"><Image src={service.image} alt="" fill sizes="(max-width: 640px) 92vw, 30vw" /></div>
-                <div className="service-card-top"><span className="service-number">{service.number}</span><span className="service-icon"><ArrowUpRight size={15} /></span></div>
-                <div className="service-card-body"><h3>{service.title}</h3><p>{service.copy}</p></div>
-                <span className="service-card-link"><CircleHelp size={14} /> Detalhes em validação</span>
+              <Reveal key={service.title} delay={index * 0.06} className="service-card glass-service-card">
+                <div className="service-card-image">
+                  <Image src={service.image} alt="" fill sizes="(max-width: 640px) 92vw, 30vw" />
+                </div>
+                <div className="service-card-top">
+                  <span className="service-number">{service.number}</span>
+                  <span className="service-tag-chip">{service.tag}</span>
+                  <span className="service-icon glass-icon">
+                    <ArrowUpRight size={15} />
+                  </span>
+                </div>
+                <div className="service-card-body">
+                  <h3>{service.title}</h3>
+                  <p>{service.copy}</p>
+                </div>
+                <span className="service-card-link">
+                  <CircleHelp size={14} /> Detalhes em validação oficial
+                </span>
               </Reveal>
             ))}
           </div>
-          <div className="service-footnote"><CircleHelp size={17} /><span>Os canais, documentos necessários, horários e regras de cada atendimento devem ser confirmados com a SADS antes da publicação final.</span></div>
+
+          <div className="service-footnote glass-footnote">
+            <CircleHelp size={18} />
+            <span>
+              Canais, horários e requisitos documentais de cada benefício devem ser confirmados com a unidade da SADS
+              antes da publicação definitiva.
+            </span>
+          </div>
         </div>
       </section>
 
+      {/* NUCA / JUVENTUDE SECTION WITH DYNAMIC GLASS COLLAGE */}
       <section id="nuca" className="section section-dark" aria-labelledby="nuca-title">
         <div className="nuca-layout">
           <Reveal className="nuca-collage">
-            <div className="image-frame nuca-photo-main"><Image src={ASSET.nuca} alt="Duas jovens do NUCA em uma ação de participação" fill sizes="(max-width: 980px) 70vw, 46vw" /></div>
-            <div className="image-frame nuca-photo-small"><Image src={ASSET.youth} alt="Jovens reunidos em uma atividade coletiva" fill sizes="(max-width: 980px) 55vw, 30vw" /></div>
-            <div className="image-frame nuca-photo-detail"><Image src={ASSET.eca} alt="Material visual de campanha pelos direitos de crianças e adolescentes" fill sizes="(max-width: 980px) 38vw, 20vw" /></div>
-            <span className="nuca-label">feito com voz jovem</span>
+            <div className="image-frame nuca-photo-main glass-frame">
+              <Image
+                src={ASSET.nuca}
+                alt="Jovens do NUCA em atividade de participação"
+                fill
+                sizes="(max-width: 980px) 70vw, 46vw"
+              />
+            </div>
+            <div className="image-frame nuca-photo-small glass-frame">
+              <Image
+                src={ASSET.youth}
+                alt="Juventude reunida em atividade coletiva"
+                fill
+                sizes="(max-width: 980px) 55vw, 30vw"
+              />
+            </div>
+            <div className="image-frame nuca-photo-detail glass-frame">
+              <Image
+                src={ASSET.eca}
+                alt="Campanha pelos direitos de crianças e adolescentes"
+                fill
+                sizes="(max-width: 980px) 38vw, 20vw"
+              />
+            </div>
+            <div className="nuca-floating-badge glass-badge">
+              <Sparkles size={14} /> voz · protagonismo · futuro
+            </div>
           </Reveal>
-          <Reveal className="nuca-copy" delay={.12}>
+
+          <Reveal className="nuca-copy" delay={0.12}>
             <SectionTag light>03 / Protagonismo</SectionTag>
-            <h2 id="nuca-title" className="display">A juventude não é só futuro. É <em>agora.</em></h2>
-            <span className="highlight">Voz • Participação • Protagonismo</span>
-            <p className="lead">O NUCA cria espaço para que adolescentes e jovens participem, expressem suas ideias e ajudem a construir uma cidade mais atenta aos seus direitos.</p>
-            <p className="lead">Acompanhe as ações e descubra como participar. Canal informado pelo cliente: <strong>@nuca.saude</strong>. Confirmar antes do lançamento.</p>
-            <a className="social-link" href="https://www.instagram.com/nuca.saude/" target="_blank" rel="noreferrer" aria-label="Abrir o Instagram informado pelo cliente para o NUCA em nova aba"><span><Instagram size={17} /></span> Conhecer o NUCA <ArrowUpRight size={15} /></a>
+            <h2 id="nuca-title" className="display">
+              A juventude não é só futuro. É <em>agora.</em>
+            </h2>
+            <span className="highlight">Voz • Participação • Cidadania</span>
+            <p className="lead">
+              O Núcleo de Cidadania de Adolescentes (NUCA) abre espaço para que os jovens participem ativamente,
+              proponham ações para o município e se formem líderes conscientes de seus direitos.
+            </p>
+            <p className="lead">
+              Acompanhe as reuniões e descubra como fazer parte. Canal informado pelo cliente:{' '}
+              <strong>@nuca.saude</strong>.
+            </p>
+            <a
+              className="social-link glass-social-link"
+              href="https://www.instagram.com/nuca.saude/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Abrir o Instagram do NUCA em nova aba"
+            >
+              <span>
+                <Instagram size={17} />
+              </span>{' '}
+              Conhecer o NUCA no Instagram <ArrowUpRight size={15} />
+            </a>
           </Reveal>
         </div>
       </section>
 
-      <section className="section section-paper" aria-labelledby="registro-title">
+      {/* CINEMA GLASS VIDEO SECTION (AMBOS OS VÍDEOS) */}
+      <section id="videos" className="section section-paper" aria-labelledby="registro-title">
         <div className="media-band">
           <Reveal className="section-header">
-            <SectionTag>Registro / Território</SectionTag>
-            <h2 id="registro-title">O cuidado também se constrói em <em>movimento.</em></h2>
-            <p>Registros de oficinas, encontros e atividades que aproximam pessoas, fortalecem vínculos e fazem a rede acontecer no cotidiano.</p>
-          </Reveal>
-          <Reveal className="video-card" delay={.1}>
-            <div className="video-header-bar">
-              <span className="video-caption">registro do território · {activeVideo === 'one' ? 'vídeo 01' : 'vídeo 02'}</span>
-              <div className="video-toggle-btns" role="tablist" aria-label="Alternar vídeos de registro">
+            <SectionTag>04 / Registros em Campo</SectionTag>
+            <h2 id="registro-title">
+              O cuidado também se constrói em <em>movimento.</em>
+            </h2>
+            <p>
+              Veja os registros em vídeo das oficinas, encontros e dinâmicas que aproximam pessoas e dão vida à rede no
+              território de Saúde/BA.
+            </p>
+
+            <div className="video-selector-card glass-card">
+              <span className="selector-title">Selecione o registro para reproduzir:</span>
+              <div className="video-btn-group" role="tablist">
                 <button
                   type="button"
-                  className={`video-tab-btn ${activeVideo === 'one' ? 'is-active' : ''}`}
+                  className={`video-select-btn ${activeVideo === 'one' ? 'is-active' : ''}`}
                   onClick={() => setActiveVideo('one')}
-                  aria-pressed={activeVideo === 'one'}
+                  role="tab"
+                  aria-selected={activeVideo === 'one'}
                 >
-                  Vídeo 01
+                  <span className="btn-indicator" />
+                  <div>
+                    <strong>Registro 01</strong>
+                    <small>Oficinas Comunitárias & Convivência</small>
+                  </div>
                 </button>
+
                 <button
                   type="button"
-                  className={`video-tab-btn ${activeVideo === 'two' ? 'is-active' : ''}`}
+                  className={`video-select-btn ${activeVideo === 'two' ? 'is-active' : ''}`}
                   onClick={() => setActiveVideo('two')}
-                  aria-pressed={activeVideo === 'two'}
+                  role="tab"
+                  aria-selected={activeVideo === 'two'}
                 >
-                  Vídeo 02
+                  <span className="btn-indicator" />
+                  <div>
+                    <strong>Registro 02</strong>
+                    <small>Ações Coletivas no Território</small>
+                  </div>
                 </button>
               </div>
             </div>
+          </Reveal>
+
+          <Reveal className="video-card glass-cinema-card" delay={0.1}>
+            <div className="video-header-bar glass-dock-bar">
+              <span className="video-caption">
+                <span className="rec-indicator" /> Território de Saúde/BA · {activeVideo === 'one' ? 'Vídeo 01' : 'Vídeo 02'}
+              </span>
+              <span className="video-format-pill">1080p MP4</span>
+            </div>
+
             <video
               key={activeVideo}
               controls
@@ -301,59 +989,144 @@ export default function HomePage() {
               playsInline
               preload="metadata"
               poster={activeVideo === 'one' ? ASSET.workshop : ASSET.youth}
-              aria-label={`Registro em vídeo ${activeVideo === 'one' ? '01' : '02'} de atividade comunitária da SADS`}
+              aria-label={`Registro em vídeo ${activeVideo === 'one' ? '01' : '02'} da SADS`}
+              className="cinema-video-element"
             >
               <source src={activeVideo === 'one' ? ASSET.videoOne : ASSET.videoTwo} type="video/mp4" />
-              Seu navegador não consegue reproduzir este vídeo.
+              Seu navegador não suporta reprodução de vídeo.
             </video>
           </Reveal>
         </div>
       </section>
 
+      {/* APOIO & PRÓXIMOS PASSOS SECTION */}
       <section id="apoio" className="section section-paper" aria-labelledby="apoio-title">
         <div className="benefits-layout">
           <Reveal className="section-header">
-            <SectionTag>04 / Apoio</SectionTag>
-            <h2 id="apoio-title">Quando você precisa, a rede está <em>presente.</em></h2>
-            <p>Para acessar um serviço ou benefício, não precisa saber tudo de uma vez. O primeiro passo é buscar orientação.</p>
-            <div className="validation-card"><strong>Informação em validação</strong><p>Benefícios específicos, como aluguel social, auxílio funeral e Pão na Mesa, só devem ser publicados após confirmação da SADS sobre disponibilidade, critérios e canal de solicitação.</p></div>
+            <SectionTag>05 / Orientação & Apoio</SectionTag>
+            <h2 id="apoio-title">
+              Quando você precisa, a rede está <em>presente.</em>
+            </h2>
+            <p>
+              Para acessar um serviço ou benefício, não é necessário saber todas as regras de uma só vez. O primeiro
+              passo é buscar a orientação correta.
+            </p>
+            <div className="validation-card glass-card">
+              <ShieldCheck size={20} className="validation-icon" />
+              <div>
+                <strong>Informações em validação técnica</strong>
+                <p>
+                  Critérios específicos para benefícios eventuais (como auxílio natalidade, aluguel social ou
+                  emergencial) devem ser consultados diretamente com o CRAS.
+                </p>
+              </div>
+            </div>
           </Reveal>
-          <Reveal className="steps" delay={.1}>
-            <div className="step"><span className="step-num">1</span><div><h3>Escolha a sua necessidade</h3><p>CadÚnico, benefício, orientação no CRAS, participação juvenil ou outra situação de apoio.</p></div></div>
-            <div className="step"><span className="step-num">2</span><div><h3>Procure a porta de entrada</h3><p>Confirme com a rede da SADS qual unidade ou equipe pode orientar o seu caso.</p></div></div>
-            <div className="step"><span className="step-num">3</span><div><h3>Combine o próximo passo</h3><p>Antes de ir, confirme horário, documentos e as condições atualizadas do atendimento.</p></div></div>
+
+          <Reveal className="steps" delay={0.1}>
+            <div className="step glass-step-card">
+              <span className="step-num">1</span>
+              <div>
+                <h3>Identifique sua necessidade</h3>
+                <p>CadÚnico, Bolsa Família, BPC, orientações do CRAS, oficinas de geração de renda ou apoio ao jovem.</p>
+              </div>
+            </div>
+            <div className="step glass-step-card">
+              <span className="step-num">2</span>
+              <div>
+                <h3>Procure a unidade da SADS</h3>
+                <p>Confirme com a equipe local qual o ponto de atendimento ou profissional responsável pelo seu caso.</p>
+              </div>
+            </div>
+            <div className="step glass-step-card">
+              <span className="step-num">3</span>
+              <div>
+                <h3>Receba orientação completa</h3>
+                <p>Apresente seus documentos e receba o encaminhamento adequado com clareza sobre datas e prazos.</p>
+              </div>
+            </div>
           </Reveal>
         </div>
       </section>
 
+      {/* CONTACT BANNER */}
       <section id="contato" className="section contact-section" aria-labelledby="contato-title">
-        <div className="contact-inner">
+        <div className="contact-inner glass-contact-box">
           <Reveal>
-            <SectionTag light>Contato</SectionTag>
-            <h2 id="contato-title" className="display">Vamos encontrar o próximo <em>passo.</em></h2>
+            <SectionTag light>Contato & Atendimento</SectionTag>
+            <h2 id="contato-title" className="display">
+              Vamos encontrar o próximo <em>passo.</em>
+            </h2>
           </Reveal>
-          <Reveal className="contact-note" delay={.1}>
-            <strong>Canais oficiais em validação</strong>
-            <p>Endereço, telefone, horários e links oficiais serão inseridos assim que confirmados pela SADS. Nenhum dado de contato fictício será publicado.</p>
+          <Reveal className="contact-note" delay={0.1}>
+            <strong>Canais Oficiais</strong>
+            <p>
+              Endereço físico, linhas telefônicas e horários de funcionamento do município de Saúde/BA serão atualizados
+              conforme confirmação oficial.
+            </p>
           </Reveal>
         </div>
       </section>
 
+      {/* FOOTER */}
       <footer className="site-footer">
         <div className="footer-top">
-          <div className="footer-brand"><strong>SADS</strong><p>Secretaria de Ação e Desenvolvimento Social<br />Saúde · Bahia</p></div>
-          <nav className="footer-links" aria-label="Links do rodapé"><a href="#servicos">Serviços</a><a href="#nuca">NUCA</a><a href="#apoio">Apoio</a><Link href="/privacidade">Privacidade</Link></nav>
+          <div className="footer-brand">
+            <strong>SADS</strong>
+            <p>
+              Secretaria de Ação e Desenvolvimento Social
+              <br />
+              Município de Saúde · Bahia
+            </p>
+          </div>
+          <nav className="footer-links" aria-label="Links do rodapé">
+            <a href="#acervo">Acervo Vivo</a>
+            <a href="#servicos">Serviços</a>
+            <a href="#nuca">NUCA</a>
+            <a href="#videos">Registros</a>
+            <a href="#apoio">Apoio</a>
+            <Link href="/privacidade">Privacidade</Link>
+          </nav>
         </div>
-        <details id="privacidade" className="footer-privacy"><summary>Privacidade e uso responsável de imagens</summary><p>Esta experiência não usa cookies não essenciais, rastreadores ou formulário de coleta por padrão. As fotos e vídeos devem ser publicados somente com autorização institucional e de imagem adequada, especialmente quando houver pessoas identificáveis ou menores de idade. Caso a página receba formulário, será necessário informar finalidade, base legal, canal do controlador e coletar consentimento quando aplicável.</p></details>
-        <div className="footer-bottom"><span>© {new Date().getFullYear()} SADS · Saúde/BA</span><span>Conteúdo institucional sujeito à validação final do cliente.</span></div>
+
+        <details id="privacidade" className="footer-privacy glass-card">
+          <summary>Privacidade, Proteção de Dados e Uso de Imagem</summary>
+          <p>
+            Esta plataforma institucional não emprega rastreadores, scripts de publicidade ou cookies não essenciais por
+            padrão. Os registros em imagem e vídeo são utilizados com propósito estritamente institucional e educativo,
+            respeitando a privacidade e dignidade de todos os cidadãos atendidos.
+          </p>
+        </details>
+
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} SADS · Secretaria de Ação e Desenvolvimento Social · Saúde/BA</span>
+          <span>Desenvolvimento institucional inclusivo e acessível.</span>
+        </div>
       </footer>
 
+      {/* PRIVACY COOKIELESS BANNER */}
       <AnimatePresence>
         {privacyOpen && (
-          <motion.aside className="privacy-banner" initial={reduce ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} aria-label="Aviso de privacidade">
-            <h2>Privacidade em primeiro lugar</h2>
-            <p>Esta versão não coleta dados pessoais, não usa rastreadores e não instala cookies não essenciais. Antes do lançamento, confirme as autorizações de uso das imagens e os canais oficiais.</p>
-            <div className="privacy-actions"><Link href="/privacidade" onClick={() => setPrivacyOpen(false)}>Ler nota de privacidade</Link><button type="button" onClick={() => setPrivacyOpen(false)}>Entendi <Check size={13} /></button></div>
+          <motion.aside
+            className="privacy-banner glass-banner"
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            aria-label="Aviso de privacidade"
+          >
+            <h2>Privacidade & Cuidado</h2>
+            <p>
+              Esta versão não coleta seus dados pessoais nem instala rastreadores. Sua navegação é 100% segura e
+              respeitosa.
+            </p>
+            <div className="privacy-actions">
+              <Link href="/privacidade" onClick={() => setPrivacyOpen(false)}>
+                Ver diretrizes
+              </Link>
+              <button type="button" onClick={() => setPrivacyOpen(false)}>
+                Entendi <Check size={13} />
+              </button>
+            </div>
           </motion.aside>
         )}
       </AnimatePresence>
